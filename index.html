@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Online Store</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+    <style>
+        /* ---------- Header Layout Enhancements ---------- */
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        .store-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        /* ---------- More Options Icon ---------- */
+        
+        .menu-icon {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .material-icons {
+            font-size: 28px;
+            user-select: none;
+        }
+        /* ---------- Dropdown Menu ---------- */
+        
+        .dropdown {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background: rgb(251, 249, 249);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 5px;
+            width: 160px;
+            z-index: 1000;
+        }
+        
+        .dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .dropdown ul li {
+            padding: 10px 15px;
+            border-bottom: 1px solid #ffffff;
+            cursor: pointer;
+            color: #000;
+            font-size: 0.95rem;
+        }
+        
+        .dropdown ul li:hover {
+            background: #ffffff;
+        }
+        /* ---------- Search Bar Style ---------- */
+        
+        #search-bar {
+            margin-top: 0.75rem;
+            margin-bottom: 0.5rem;
+            width: 40%;
+            padding: 0.5rem;
+            background-image: linear-gradient(rgba(59, 60, 63, 0.24), rgba(255, 255, 255, 0.9)), url(image/background.jpg);
+            background-position: center;
+            background-size: cover;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f3f3f3;
+        }
+        
+        header {
+            background-color: #4b6cb7;
+            color: rgb(251, 251, 251);
+            padding: 1rem;
+            text-align: center;
+            font-size: 2%;
+        }
+        
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 1rem;
+            justify-content: center;
+        }
+        
+        .product {
+            display: none;
+            /* hide by default */
+            background: white;
+            border: 1px solid #ddd;
+            margin: 1rem;
+            border-radius: 8px;
+            width: 250px;
+            padding: 1rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .product img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        
+        .product h3 {
+            margin: 0.5rem 0;
+        }
+        
+        .product button {
+            padding: 0.5rem 1rem;
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .product button:hover {
+            background: #3a5499;
+        }
+        
+        #cart {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+        }
+        
+        #cart h2 {
+            margin-top: 0;
+        }
+        
+        #cart ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        #cart ul li {
+            margin: 0.5rem 0;
+        }
+        
+        #cart-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: #4b6cb7;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 999;
+        }
+        
+        #cart-panel {
+            position: fixed;
+            bottom: 5.5rem;
+            right: 1.5rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            width: 280px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 998;
+        }
+        
+        #cart-panel.visible {
+            display: block;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .menu {
+            background: #4b6cb7;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .menu ol {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        
+        .menu-item {
+            position: relative;
+        }
+        
+        .menu-item>a {
+            display: block;
+            padding: 1rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .menu-item>a:hover {
+            background: #3a5499;
+        }
+        /* 🔽 Submenu styles */
+        
+        .sub-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            padding: 0;
+            display: none;
+            flex-direction: column;
+            min-width: 180px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sub-menu .menu-item a {
+            color: #333;
+            padding: 0.75rem 1rem;
+        }
+        
+        .sub-menu .menu-item a:hover {
+            background: #f0f0f0;
+        }
+        /* 🔁 Show submenu on hover */
+        
+        .menu-item:hover>.sub-menu {
+            display: flex;
+        }
+        
+        .menu {
+            background: #4b6cb7;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            /* ✅ center the whole menu */
+        }
+        
+        .menu ol {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            /* ✅ center items inside */
+            gap: 1rem;
+        }
+        
+        .menu-item {
+            position: relative;
+        }
+        
+        .menu-item>a {
+            display: block;
+            padding: 1rem 1.2rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .menu-item>a:hover {
+            background: #3a5499;
+            border-radius: 5px;
+        }
+        /* 🔽 Submenu styles */
+        
+        .sub-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgb(255, 255, 255);
+            padding: 0;
+            display: none;
+            flex-direction: column;
+            min-width: 180px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            z-index: 10;
+        }
+        
+        .sub-menu .menu-item a {
+            color: #333;
+            padding: 0.75rem 1rem;
+        }
+        
+        .sub-menu .menu-item a:hover {
+            background: #f0f0f0;
+        }
+        /* ✅ Show submenu only when parent has .open */
+        
+        .menu-item.open>.sub-menu {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <header>
+        <div class="header-content">
+            <div class="store-name">My Simple Store</div>
+
+            <!-- More Options (︙) Icon -->
+            <div class="menu-icon" onclick="toggleMenu()">
+                <span class="material-icons">more_vert</span>
+                <div id="dropdown-menu" class="dropdown hidden">
+                    <ul>
+                        <li>
+                            <div id="login-form" style="padding: 10px;">
+                                <label for="username" style="display: block; margin-bottom: 5px;">Username:</label>
+                                <input type="text" id="username" placeholder="Enter username" style="width: 100%; padding: 5px; margin-bottom: 10px;" />
+
+                                <label for="password" style="display: block; margin-bottom: 5px;">Password:</label>
+                                <input type="password" id="password" placeholder="Enter password" style="width: 100%; padding: 5px; margin-bottom: 10px;" />
+
+                                <button onclick="handleLogin()" style="width: 100%; padding: 6px; background: #4b6cb7; color: white; border: none; border-radius: 4px;">Login</button>
+                            </div>
+                        </li>
+
+                        <li>Orders</li>
+                        <li>Wishlist</li>
+                        <li>Settings</li>
+                        <li>Help</li>
+                        <li>Contact</li>
+                        <li>Coupons</li>
+                        <li>Logout</li>
+                        <li>Language</li>
+                        <li>About</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <input type="text" id="search-bar" placeholder="Search products...">
+    </header>
+
+    <body>
+
+
+
+        <nav class="menu">
+            <ol>
+                <li class="menu-item"><a href="#0">HOME</a></li>
+                <li class="menu-item"><a href="#0">MEN</a></li>
+                <li class="menu-item"><a href="#0">WOMEN</a></li>
+                <li class="menu-item"><a href="#0">KIDS</a></li>
+
+
+            </ol>
+            </li>
+            </ol>
+        </nav>
+
+
+        <div class="products">
+            <div class="product">
+                <img src="C:\Users\91883\Downloads\images\product1.jpg.jpeg" alt="Product 1">
+                <h3 class="product-name">Product 1</h3>
+                <p>₹100</p>
+                <button onclick="addToCart('Product 1', 100)">Add to Cart</button>
+                <button onclick="Buy('Product 1', 100)">Buy</button>
+
+            </div>
+            <div class="product">
+                <img src="C:\Users\91883\Downloads\images\product1.jpg.jpeg" alt="Product 2">
+                <h3 class="product-name">Product 2</h3>
+                <p>₹100</p>
+                <button onclick="addToCart('Product 2', 100)">Add to Cart</button>
+                <button onclick="Buy('Product 2', 100)">Buy</button>
+            </div>
+            <div class="product">
+                <img src="C:\Users\91883\Downloads\images\product1.jpg.jpeg" alt="Product 3">
+                <h3 class="product-name">Product 3</h3>
+                <p>₹100</p>
+                <button onclick="addToCart('Product 3', 100)">Add to Cart</button>
+                <button onclick="Buy('Product 3', 100)">Buy</button>
+            </div>
+
+            <div class="product">
+                <img src="C:\Users\91883\Downloads\images\product1.jpg.jpeg" alt="Product 4">
+                <h3 class="product-name">Product 4</h3>
+                <p>₹100</p>
+                <button onclick="addToCart('Product 4', 100)">Add to Cart</button>
+                <button onclick="Buy('Product 4', 100)">Buy</button>
+            </div>
+            <div class="product">
+                <img src="C:\Users\91883\Downloads\images\product1.jpg.jpeg" alt="Product 5">
+                <h3 class="product-name">Product 5</h3>
+                <p>₹100</p>
+                <button onclick="addToCart('Product 5', 100)">Add to Cart</button>
+                <button onclick="Buy('Product 5', 100)">Buy</button>
+            </div>
+            <div class="product">
+                <img src="C:\Users\91883\Downloads\images\product1.jpg.jpeg" alt="Product 6">
+                <h3 class="product-name">Product 6</h3>
+                <p>₹100</p>
+                <button onclick="addToCart('Product 6', 100)">Add to Cart</button>
+                <button onclick="Buy('Product 6', 100)">Buy</button>
+            </div>
+            <div class="product">
+                <img src="C:\Users\91883\Downloads\images\product1.jpg.jpeg" alt="Product 7">
+                <h3 class="product-name">Product 7</h3>
+                <p>₹100</p>
+                <button onclick="addToCart('Product 7', 100)">Add to Cart</button>
+                <button onclick="Buy('Product 7', 100)">Buy</button>
+            </div>
+            <div class="product">
+                <img src="C:\Users\91883\Downloads\images\product1.jpg.jpeg" alt="Product 8">
+                <h3 class="product-name">Product 8</h3>
+                <p>₹100</p>
+                <button onclick="addToCart('Product 8', 100)">Add to Cart</button>
+                <button onclick="Buy('Product 8', 100)">Buy</button>
+            </div>
+
+            <!-- ✅ No results message -->
+            <div id="no-results" style="display: none; text-align:center; font-size: 1.1rem; margin: 2rem; color: gray;">
+                No products found.
+            </div>
+
+        </div>
+
+        <!-- Cart Toggle Button -->
+        <div id="cart-toggle" onclick="toggleCart()">🛒 Cart</div>
+
+        <!-- Cart Panel -->
+        <div id="cart-panel" class="hidden">
+            <h2>Cart</h2>
+            <ul id="cart-items"></ul>
+            <p><strong>Total:</strong> ₹<span id="total">0.00</span></p>
+        </div>
+
+
+        <script>
+            let cart = [];
+
+            function addToCart(name, price) {
+                cart.push({
+                    name,
+                    price
+                });
+                updateCart();
+            }
+
+            function updateCart() {
+                const cartList = document.getElementById('cart-items');
+                const totalEl = document.getElementById('total');
+                cartList.innerHTML = '';
+                let total = 0;
+                cart.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.name} - ₹${item.price.toFixed(2)}`;
+                    cartList.appendChild(li);
+                    total += item.price;
+                });
+                totalEl.textContent = total.toFixed(2);
+            }
+
+            function toggleCart() {
+                const cartPanel = document.getElementById('cart-panel');
+                cartPanel.classList.toggle('visible');
+            }
+
+            function toggleMenu() {
+                const menu = document.getElementById('dropdown-menu');
+                menu.classList.toggle('hidden');
+            }
+
+            function toggleSubMenu(menuItem, event) {
+                event.stopPropagation(); // Stop the click from reaching the document
+
+                // Close all other open submenus
+                document.querySelectorAll('.menu-item.open').forEach(item => {
+                    if (item !== menuItem) {
+                        item.classList.remove('open');
+                    }
+                });
+
+                // Toggle the clicked menu
+                menuItem.classList.toggle('open');
+            }
+
+
+            // Toggle the clicked one
+            menuItem.classList.toggle('open');
+
+
+            function toggleSubMenu(menuItem) {
+                // Close all other open submenus
+                document.querySelectorAll('.menu-item.open').forEach(item => {
+                    if (item !== menuItem) {
+                        item.classList.remove('open');
+                    }
+
+                });
+
+                // Toggle the clicked one
+                menuItem.classList.toggle('open');
+            }
+
+            // ✅ Close submenu if clicked outside
+            document.addEventListener('click', function(event) {
+                const isClickInsideMenu = event.target.closest('.menu-item.has-submenu');
+                if (!isClickInsideMenu) {
+                    document.querySelectorAll('.menu-item.open').forEach(item => {
+                        item.classList.remove('open');
+                    });
+                }
+
+                // ✅ Close submenu if user clicks outside it
+                document.addEventListener('click', function() {
+                    document.querySelectorAll('.menu-item.open').forEach(item => {
+                        item.classList.remove('open');
+                    });
+                });
+
+            });
+        </script>
+        <script>
+            // Toggle submenu when OTHER is clicked
+            document.getElementById('other-link').addEventListener('click', function(e) {
+                e.stopPropagation(); // prevent event from bubbling to document
+                const otherMenu = document.getElementById('other-menu');
+                otherMenu.classList.toggle('open');
+            });
+
+            // Close submenu when clicking outside
+            document.addEventListener('click', function() {
+                document.getElementById('other-menu').classList.remove('open');
+            });
+
+            // Close the submenu if user clicks outside
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item.open').forEach(item => {
+                    item.classList.remove('open');
+                });
+            });
+
+            // ✅ Live product search
+            document.getElementById('search-bar').addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const products = document.querySelectorAll('.product');
+
+                products.forEach(product => {
+                    const name = product.querySelector('.product-name').textContent.toLowerCase();
+                    if (name.includes(query)) {
+                        product.style.display = 'block';
+                    } else {
+                        product.style.display = 'none';
+                    }
+                });
+            });
+
+
+            // ✅ Enable live product search
+            document.getElementById('search-bar').addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const products = document.querySelectorAll('.product');
+
+                products.forEach(product => {
+                    const name = product.querySelector('.product-name').textContent.toLowerCase();
+                    if (name.includes(query)) {
+                        product.style.display = 'block';
+                    } else {
+                        product.style.display = 'none';
+                    }
+                });
+            });
+        </script>
+
+        <script>
+            const searchBar = document.getElementById('search-bar');
+
+            function filterProducts() {
+                const query = searchBar.value.toLowerCase();
+                const products = document.querySelectorAll('.product');
+                let anyVisible = false;
+
+                products.forEach(product => {
+                    const name = product.querySelector('h3').textContent.toLowerCase();
+                    if (name.includes(query)) {
+                        product.style.display = 'block';
+                        anyVisible = true;
+                    } else {
+                        product.style.display = 'none';
+                    }
+                });
+
+                // Optional: Show message if no products match
+                const noResults = document.getElementById('no-results');
+                if (noResults) noResults.style.display = anyVisible ? 'none' : 'block';
+            }
+
+            // Listen for typing
+            searchBar.addEventListener('input', filterProducts);
+
+            // Listen for Enter key
+            searchBar.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    filterProducts();
+                }
+            });
+
+
+            function handleLogin() {
+                const username = document.getElementById("username").value.trim();
+                const password = document.getElementById("password").value.trim();
+
+                if (username && password) {
+                    alert("Logging in as: " + username);
+                    // TODO: Add real login handling here
+                    document.getElementById("dropdown-menu").classList.add("hidden");
+                } else {
+                    alert("Please enter both username and password.");
+                }
+            }
+        </script>
+
+
+
+    </body>
+
+</html>
